@@ -1,3 +1,7 @@
+/**
+ * Server code
+ * @module
+ */
 import { Hono } from '@hono/hono'
 import type { ResponseInfo } from './types.ts'
 

@@ -1,3 +1,8 @@
+/**
+ * Utils
+ * @module
+ */
+
 import type { ResponseInfo } from './types.ts'
 
 export const parseProxyResponse = async (

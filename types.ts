@@ -1,3 +1,8 @@
+/**
+ * Types
+ * @module
+ */
+
 export interface ResponseInfo {
   headers: {
     [k: string]: string

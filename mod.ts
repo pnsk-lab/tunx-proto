@@ -7,6 +7,7 @@ import { parseProxyResponse } from './utils.ts'
  * ```
  * @module
  */
+
 export const createFetch = (
   proxyUrlInput: string | URL,
   fetchFn?: (req: Request) => Response,
