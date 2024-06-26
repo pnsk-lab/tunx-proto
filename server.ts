@@ -31,6 +31,7 @@ app.all('/proxy', cors({
     headers,
     body: c.req.raw.body,
     method: c.req.method,
+    redirect: 'manual',
   })
 
   const responseData: ResponseInfo = {
