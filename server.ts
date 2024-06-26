@@ -3,11 +3,14 @@
  * @module
  */
 import { Hono } from '@hono/hono'
+import { cors } from '@hono/hono/cors'
 import type { ResponseInfo } from './types.ts'
 
 const app = new Hono()
 
-app.all('/proxy', async (c) => {
+app.all('/proxy', cors({
+  origin: '*',
+}), async (c) => {
   const urlString = c.req.query('url')
   if (!urlString) {
     return c.text('Bad request', 400)
