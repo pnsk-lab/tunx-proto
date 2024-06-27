@@ -1,8 +1,9 @@
 {
   "name": "@pnsk-lab/tunx",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "exports": {
-    ".": "./mod.ts"
+    ".": "./mod.ts",
+    "./server": "./server.ts"
   },
   "fmt": {
     "indentWidth": 2,
