@@ -5,6 +5,16 @@
 
 import type { ResponseInfo } from './types.ts'
 
+export const generateRandomVarName = () => {
+  const characters = 'abcdefghijklmnopqrstuvwxyz'
+  let result = ''
+  for (let i = 0; i < 16; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length)
+    result += characters[randomIndex]
+  }
+  return result
+}
+
 export const parseProxyResponse = async (
   stream: ReadableStream<Uint8Array>,
 ): Promise<{

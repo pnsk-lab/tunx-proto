@@ -1,16 +1,14 @@
 /**
- * Server code
+ * Proxy code
  * @module
  */
+
+import type { ResponseInfo } from '../types.ts'
 import { Hono } from '@hono/hono'
-import { cors } from '@hono/hono/cors'
-import type { ResponseInfo } from './types.ts'
 
 const app = new Hono()
 
-app.all('/proxy', cors({
-  origin: '*',
-}), async (c) => {
+app.all('/proxy', async (c) => {
   const urlString = c.req.query('url')
   if (!urlString) {
     return c.text('Bad request', 400)
@@ -57,4 +55,4 @@ app.all('/proxy', cors({
   return c.newResponse(responseStream)
 })
 
-Deno.serve(app.fetch)
+export const proxy = app
