@@ -18,6 +18,7 @@ export const createFetch = (
 
   return async (input, options) => {
     const userRequest = new Request(input, options)
+    const bodyToSend = options?.body ?? ((typeof input === 'object' && 'body' in input) ? input.body : null) ?? null
 
     const urlToSendProxy = new URL(proxyUrl)
     urlToSendProxy.searchParams.append('url', userRequest.url)
@@ -26,11 +27,23 @@ export const createFetch = (
     userRequest.headers.forEach((value, key) => {
       headers.set(`x-tunx-${key}`, value)
     })
+    if (Array.isArray(options?.headers)) {
+      for (const [key, value] of options.headers) {
+        headers.set(`x-tunx-${key}`, value)
+      }
+    } else if (options?.headers && typeof options.headers === 'object') {
+      for (const key in options?.headers) {
+        const value = options.headers[key as keyof typeof options.headers]
+        if (typeof value === 'string') {
+          headers.set(`x-tunx-${key}`, value)
+        }
+      }
+    }
 
     const req = new Request(urlToSendProxy, {
       headers,
       method: userRequest.method,
-      body: await userRequest.blob()
+      body: bodyToSend
     })
 
     const res = await fetch(req)
