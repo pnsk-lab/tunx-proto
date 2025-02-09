@@ -11,22 +11,31 @@ import { parseProxyResponse } from './utils.ts'
 export const createFetch = (
   proxyUrlInput: string | URL,
   fetchFn?: (req: Request) => Response,
+  customHeaders?: HeadersInit
 ): typeof globalThis.fetch => {
   const proxyUrl = new URL(proxyUrlInput)
 
   const fetch = fetchFn ?? globalThis.fetch
 
+  let isSupportedReadableUpload = true
+
   return async (input, options) => {
-    const userRequest = new Request(input, options)
     const bodyToSend = options?.body ?? ((typeof input === 'object' && 'body' in input) ? input.body : null) ?? null
 
     const urlToSendProxy = new URL(proxyUrl)
-    urlToSendProxy.searchParams.append('url', userRequest.url)
+    urlToSendProxy.searchParams.append('url', input instanceof Request ? input.url : input.toString())
+    const method = input instanceof Request ? input.method : options?.method
 
     const headers = new Headers()
-    userRequest.headers.forEach((value, key) => {
-      headers.set(`x-tunx-${key}`, value)
-    })
+    if (input instanceof Request) {
+      input.headers.forEach((value, key) => {
+        headers.set(`x-tunx-${key}`, value)
+      })
+      new Headers(customHeaders).forEach((value, key) => {
+        headers.set(`x-tunx-${key}`, value)
+      })
+    }
+
     if (Array.isArray(options?.headers)) {
       for (const [key, value] of options.headers) {
         headers.set(`x-tunx-${key}`, value)
@@ -42,11 +51,29 @@ export const createFetch = (
 
     const req = new Request(urlToSendProxy, {
       headers,
-      method: userRequest.method,
+      method,
       body: bodyToSend
     })
 
-    const res = await fetch(req)
+    let res!: Response
+    if (isSupportedReadableUpload) {
+      try {
+        res = await fetch(req)
+      } catch (e) {
+        if (e instanceof DOMException && e.message.includes('ReadableStream uploading is not supported')) {
+          isSupportedReadableUpload = false
+        } else {
+          throw e
+        }
+      }
+    }
+    if (!isSupportedReadableUpload) {
+      res = await fetch(new Request(urlToSendProxy, {
+        headers,
+        method,
+        body: bodyToSend ? await new Response(bodyToSend).blob() : null
+      }))
+    }
 
     if (!res.body) {
       throw new TypeError("Proxy didn't send body")
