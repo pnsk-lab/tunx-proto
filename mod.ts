@@ -30,6 +30,7 @@ export const createFetch = (
     const req = new Request(urlToSendProxy, {
       headers,
       method: userRequest.method,
+      body: userRequest.body
     })
 
     const res = await fetch(req)
